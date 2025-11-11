@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Link Matrix Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+      color: #222;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .column {
+      flex: 1 1 200px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 6px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin-top: 6px;
+      font-size: 14px;
+      padding: 6px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      white-space: pre-wrap;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      min-height: 60px;
+    }
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .copy-btn {
+      background-color: #4caf50;
+    }
+    .copy-btn:hover {
+      background-color: #3c913f;
+    }
+  </style>
+</head>
+<body>
+  <h1>Link Matrix Builder</h1>
+
+  <div id="columns" class="columns"></div>
+
+  <div class="buttons">
+    <button id="addColumn">+ Add Column</button>
+    <button id="generate">Generate</button>
+  </div>
+
+  <div class="output-header">
+    <h3>Output</h3>
+    <button id="copyOutput" class="copy-btn">Copy Output</button>
+  </div>
+  <pre id="output"></pre>
+
+  <script>
+    const columnsContainer = document.getElementById('columns');
+    const addColumnBtn = document.getElementById('addColumn');
+    const generateBtn = document.getElementById('generate');
+    const copyBtn = document.getElementById('copyOutput');
+    const output = document.getElementById('output');
+
+    // Create a new column block
+    function createColumn(name = '') {
+      const div = document.createElement('div');
+      div.className = 'column';
+      div.innerHTML = `
+        <input type="text" placeholder="Variable name (e.g. href)" value="${name}">
+        <textarea placeholder="Enter values (one per line)"></textarea>
+      `;
+      columnsContainer.appendChild(div);
+    }
+
+    // Add 4 columns by default
+    const defaultCols = ['href', '', '', ''];
+    defaultCols.forEach(col => createColumn(col));
+
+    // Allow user to add more columns
+    addColumnBtn.addEventListener('click', () => {
+      createColumn();
+    });
+
+    // Generate output
+    generateBtn.addEventListener('click', () => {
+      const columns = [...columnsContainer.querySelectorAll('.column')];
+      const vars = columns.map(col => col.querySelector('input').value.trim());
+      const rows = columns.map(col => col.querySelector('textarea').value.trim().split('\n'));
+
+      const recordCount = Math.max(...rows.map(r => r.length));
+      const results = [];
+
+      for (let i = 0; i < recordCount; i++) {
+        const parts = [];
+        for (let j = 0; j < vars.length; j++) {
+          const varName = vars[j];
+          const value = rows[j][i] || '';
+          if (varName && value) parts.push(`${varName}="${value}"`);
+        }
+        if (parts.length) results.push(parts.join(' '));
+      }
+
+      output.textContent = results.join('\n');
+    });
+
+    // Copy output to clipboard
+    copyBtn.addEventListener('click', async () => {
+      const text = output.textContent.trim();
+      if (!text) return alert('Nothing to copy!');
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => (copyBtn.textContent = 'Copy Output'), 1500);
+      } catch (err) {
+        alert('Failed to copy text');
+      }
+    });
+  </script>
+</body>
+</html>
