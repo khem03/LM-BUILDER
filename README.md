@@ -14,7 +14,7 @@ A simple, user-friendly tool for generating attribute matrices—perfect for rap
 ## Usage
 
 1. **Clone or download** this repository.
-2. Open `index.html` in your web browser.
+2. Open `LinkMatrixBuilder.html` in your web browser.
 3. For each column:
     - Enter a variable/attribute name (e.g., `href`, `text`, etc.).
     - Enter values, one per line, in the textarea below the name.
